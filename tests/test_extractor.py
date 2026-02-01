@@ -6,8 +6,7 @@ Uses real spaCy tokenization with mocked I/O and external APIs.
 """
 
 import json
-from pathlib import Path
-from unittest.mock import Mock, patch, mock_open
+from unittest.mock import patch
 
 import pytest
 import responses
@@ -362,7 +361,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, JavaScript, Docker"
         resume = "Skills: Python, JavaScript, Docker, AWS"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert result["score"] == 100.0
         assert len(result["matched_keywords"]) == 3
@@ -374,7 +373,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, JavaScript, Docker, Kubernetes"
         resume = "Skills: Python, JavaScript"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert result["score"] == 50.0  # 2 out of 4
         assert len(result["matched_keywords"]) == 2
@@ -386,7 +385,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, JavaScript"
         resume = "Skills: Marketing, Sales"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert result["score"] == 0.0
         assert len(result["matched_keywords"]) == 0
@@ -397,7 +396,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: python, javascript"
         resume = "Skills: PYTHON, JAVASCRIPT"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert result["score"] == 100.0
         assert len(result["matched_keywords"]) == 2
@@ -407,7 +406,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python"
         resume = "Skills: Python, JavaScript, Docker, Kubernetes, AWS, React"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         # Should still be 100% (1/1 required skills matched)
         assert result["score"] == 100.0
@@ -422,7 +421,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: C++ and Python"
         resume = "Skills: c++ and python"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         # Should use job's format (C++ not c++)
         assert "C++" in result["matched_keywords"]
@@ -436,7 +435,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, .NET, PostgreSQL"
         resume = "Skills: python"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         # Missing skills should use job's format
         assert ".NET" in result["missing_keywords"]
@@ -451,7 +450,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, JavaScript, Docker"
         resume = "Skills: Python"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert result["score"] == 33.33  # Rounded to 2 decimals
         assert result["match_ratio"] == "1/3"
@@ -461,7 +460,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, JavaScript, Docker"
         resume = "Skills: Python, JavaScript"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert result["score"] == 66.67
         assert result["match_ratio"] == "2/3"
@@ -471,7 +470,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, JavaScript, Docker, AWS, React, Vue.js, TypeScript"
         resume = "Skills: Python, JavaScript"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         # 2/7 = 28.571428...
         assert result["score"] == 28.57
@@ -486,7 +485,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, JavaScript, Docker, AWS, React"
         resume = "Skills: Python, JavaScript, Docker, AWS"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert result["score"] == 80.0
         assert "✓ Strong match" in result["explanation"]
@@ -496,7 +495,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, JavaScript, Docker"
         resume = "Skills: Python, JavaScript"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert result["score"] == 66.67
         assert "~ Good match" in result["explanation"]
@@ -506,7 +505,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, JavaScript"
         resume = "Skills: Python"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         # 1/2 = 50% (partial match range)
         assert result["score"] == 50.0
@@ -517,7 +516,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, JavaScript, Docker, AWS, Kubernetes"
         resume = "Skills: Python"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert result["score"] == 20.0
         assert "✗ Weak match" in result["explanation"]
@@ -527,7 +526,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, JavaScript"
         resume = "Skills: Python, JavaScript"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert "Matched skills" in result["explanation"]
         assert "Python" in result["explanation"]
@@ -538,7 +537,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, JavaScript, Docker"
         resume = "Skills: Python"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert "Missing skills" in result["explanation"]
         assert "JavaScript" in result["explanation"]
@@ -553,7 +552,7 @@ class TestResumeJobMatcher:
         job_desc = ""
         resume = "Skills: Python, JavaScript"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert result["score"] == 0.0
         assert result["match_ratio"] == "0/0"
@@ -564,7 +563,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: Python, JavaScript"
         resume = ""
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert result["score"] == 0.0
         assert len(result["matched_keywords"]) == 0
@@ -572,7 +571,7 @@ class TestResumeJobMatcher:
 
     def test_both_empty(self, matcher):
         """Both empty should return empty result"""
-        result = matcher.match("", "")
+        result = matcher.match_skills("", "")
         
         assert result["score"] == 0.0
         assert result["match_ratio"] == "0/0"
@@ -584,7 +583,7 @@ class TestResumeJobMatcher:
         job_desc = "Requirements: C++, C#, .NET, Node.js"
         resume = "Skills: C++, C#, .NET, Node.js"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert result["score"] == 100.0
         assert len(result["matched_keywords"]) == 4
@@ -616,7 +615,7 @@ class TestResumeJobMatcher:
         - API development (REST, GraphQL)
         """
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         # Should find matches for: Python, Node.js, JavaScript, PostgreSQL, Docker, AWS
         assert result["score"] > 50.0  # Good match
@@ -640,7 +639,7 @@ class TestIntegration:
         job_desc = "Looking for Python, Docker, and AWS expertise"
         resume = "I have 5 years of Python and Docker experience"
         
-        result = matcher.match(resume, job_desc)
+        result = matcher.match_skills(resume, job_desc)
         
         assert isinstance(result, dict)
         assert "score" in result
@@ -662,9 +661,9 @@ class TestIntegration:
         resume2 = "Skills: Python, Docker"
         resume3 = "Skills: Python"
         
-        result1 = matcher.match(resume1, job_desc)
-        result2 = matcher.match(resume2, job_desc)
-        result3 = matcher.match(resume3, job_desc)
+        result1 = matcher.match_skills(resume1, job_desc)
+        result2 = matcher.match_skills(resume2, job_desc)
+        result3 = matcher.match_skills(resume3, job_desc)
         
         # Scores should be descending
         assert result1["score"] > result2["score"] > result3["score"]
