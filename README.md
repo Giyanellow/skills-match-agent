@@ -705,10 +705,6 @@ Edit `src/core/extractor.py` → `ResumeJobMatcher.match_skills()` to:
 - Include experience duration
 - Filter by skill categories
 
-## License
-
-This project is provided as-is for educational and commercial use.
-
 ## Support
 
 For issues, questions, or contributions:
