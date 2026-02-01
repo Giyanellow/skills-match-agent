@@ -705,6 +705,42 @@ Edit `src/core/extractor.py` → `ResumeJobMatcher.match_skills()` to:
 - Include experience duration
 - Filter by skill categories
 
+## License
+
+**Test Project - Educational Use Only**
+
+This code was created as part of a technical assessment and is shared publicly for **portfolio and educational purposes only**.
+
+### Permissions
+
+**Allowed:**
+
+- View and study the code
+- Use for learning and educational purposes
+- Reference in your own learning projects
+- Fork for personal experimentation
+
+**Not Allowed:**
+
+- Commercial use or incorporation into commercial products
+- Redistribution or sale of this code
+- Use in production applications
+- Claiming this work as your own
+
+### Disclaimer
+
+```
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED. This is a demonstration project and not
+intended for production use.
+```
+
+**For inquiries about usage rights beyond educational purposes, please open an issue or contact the repository owner.**
+
+---
+
+**© 2026 [Gianello Montenegro]. All Rights Reserved** (except for educational viewing)
+
 ## Support
 
 For issues, questions, or contributions:
