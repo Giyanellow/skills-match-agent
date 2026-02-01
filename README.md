@@ -739,7 +739,7 @@ intended for production use.
 
 ---
 
-**© 2026 [Gianello Montenegro]. All Rights Reserved** (except for educational viewing)
+**© 2026 Gianello Montenegro. All Rights Reserved** (except for educational viewing)
 
 ## Support
 
